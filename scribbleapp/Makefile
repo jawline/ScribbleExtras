@@ -1,6 +1,6 @@
 SOURCE_FILES=main.cpp
 OUTPUT=./a.out
-CFLAGS= -lscribble -I ../../src/ -std=c++0x
+CFLAGS= -lscribble -I ../../Scribble/src/ -std=c++0x
 CC = g++
 
 all:

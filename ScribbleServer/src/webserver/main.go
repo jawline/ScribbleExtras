@@ -33,7 +33,7 @@ func pageHandler(c http.ResponseWriter, req *http.Request) {
 	c.Header().Set("Access-Control-Allow-Origin", "*")
 
 
-	out, err := exec.Command(path, "--file",  writeSource(req.FormValue("source"))).Output()
+	out, err := exec.Command(path, writeSource(req.FormValue("source"))).Output()
 
 	if err != nil {
 		c.Write([]byte("Error:"+err.Error()+"\n"+ string(out)))
