@@ -28,15 +28,17 @@ func writeSource(source string) string {
 }
 
 func pageHandler(c http.ResponseWriter, req *http.Request) {
-	fmt.Printf("Handle %s\n", req.FormValue("source"))
-	c.Header().Set("Access-Control-Allow-Origin", "*")
+	fmt.Printf("Handle %s\n", req.FormValue("source"));
+	c.Header().Set("Access-Control-Allow-Origin", "*");
 
-	out, err := exec.Command("/usr/bin/make", "install").CombinedOutput()
+	cmd := exec.Command("make", "install");
+	cmd.Dir := path;
+	out, err := cmd.CombinedOutput();
 
 	if err != nil {
-		c.Write([]byte("Error:" + err.Error() + "\n" + string(out)))
+		c.Write([]byte("Error:" + err.Error() + "\n" + string(out)));
 	} else {
-		c.Write([]byte(out))
+		c.Write([]byte(out));
 	}
 }
 
