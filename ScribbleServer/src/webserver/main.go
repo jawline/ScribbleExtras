@@ -27,11 +27,10 @@ func writeSource(source string) string {
 	return "./temp.sc"
 }
 
-func pageHandler(c http.ResponseWriter, req *http.Request) {
+func buildHandler(c http.ResponseWriter, req *http.Request) {
 	fmt.Printf("Handle %s\n", req.FormValue("source"))
 
 	c.Header().Set("Access-Control-Allow-Origin", "*")
-
 
 	out, err := exec.Command(path, writeSource(req.FormValue("source"))).Output()
 
@@ -43,12 +42,11 @@ func pageHandler(c http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-
-	directoryFlag := flag.String("path", "scribble", "The path to the scribble interpretor")
+	directoryFlag := flag.String("path", "scribble", "The path to the scribble directory")
 	flag.Parse()
 	path = *directoryFlag
 
-	http.HandleFunc("/run", pageHandler)
+	http.HandleFunc("/startbuild", buildHandler)
 
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
