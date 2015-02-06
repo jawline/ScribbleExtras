@@ -48,7 +48,7 @@ func main() {
 	flag.Parse()
 	path = *directoryFlag
 
-	http.HandleFunc("/run", pageHandler)
+	http.HandleFunc("/build", pageHandler)
 
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
