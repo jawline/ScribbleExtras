@@ -31,7 +31,7 @@ func pageHandler(c http.ResponseWriter, req *http.Request) {
 	fmt.Printf("Handle %s\n", req.FormValue("source"))
 	c.Header().Set("Access-Control-Allow-Origin", "*")
 
-	out, err := exec.Command("/usr/bin/make", "install").Output()
+	out, err := exec.Command("/usr/bin/make", "install").CombinedOutput()
 
 	if err != nil {
 		c.Write([]byte("Error:" + err.Error() + "\n" + string(out)))
