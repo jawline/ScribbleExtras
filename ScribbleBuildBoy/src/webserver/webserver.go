@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 var addr = flag.String("addr", ":9760", "WebServer Service")
@@ -31,12 +32,19 @@ func pageHandler(c http.ResponseWriter, req *http.Request) {
 	fmt.Printf("Handle %s\n", req.FormValue("source"));
 	c.Header().Set("Access-Control-Allow-Origin", "*");
 
+	path, err := filepath.Abs(path);
+
+	if err != nil {
+		c.Write([]byte("Error:" + err.Error() + "\n"));
+		return;
+	}
+
 	cmd := exec.Command("make", "install");
-	cmd.Dir := path;
+	cmd.Dir = path;
 	out, err := cmd.CombinedOutput();
 
 	if err != nil {
-		c.Write([]byte("Error:" + err.Error() + "\n" + string(out)));
+		c.Write([]byte(string(out) + "Error:" + err.Error() + "\n"));
 	} else {
 		c.Write([]byte(out));
 	}
