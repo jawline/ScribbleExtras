@@ -30,3 +30,19 @@
  .building {
   color: red;
  }
+
+ .successmessage.success {
+  color: green;
+ }
+
+ .successmessage:not(.success) {
+  color: red;
+ }
+
+ .successmessage {
+  text-align: center;
+ }
+
+ .smallhidden {
+  visibility: hidden;
+ }

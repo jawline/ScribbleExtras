@@ -8,19 +8,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"html"
 	"encoding/json"
 )
 
 type Status struct {
 	Building bool
+	PreviousJobs int
+	LastStep string
 	Log string
 	Error string
 }
 
 var addr = flag.String("addr", ":80", "WebServer Service");
 var path = "";
-var state = Status{false, "", ""};
+var state = Status{false, 0, "", "", ""};
 
 func writeSource(source string) string {
 
@@ -37,11 +38,15 @@ func writeSource(source string) string {
 }
 
 func buildHandler(c http.ResponseWriter, req *http.Request) {
-	beginProcess("", c, req);
+	beginProcess("all", c, req);
 }
 
 func cleanHandler(c http.ResponseWriter, req *http.Request) {
 	beginProcess("clean", c, req);
+}
+
+func failHandler(c http.ResponseWriter, req *http.Request) {
+	beginProcess("stupidcommand", c, req);
 }
 
 func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
@@ -51,6 +56,9 @@ func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 		c.Write([]byte("{reason:\"job already running\"}"));
 		return;
 	}
+
+	state.PreviousJobs++;
+	state.LastStep = rule;
 
 	state.Log = "";
 	state.Error = "";
@@ -82,10 +90,10 @@ func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 
 		out, err := cmd.CombinedOutput();
 
-		state.Log = html.EscapeString(string(out));
+		state.Log = string(out);
 
 		if err != nil {
-			state.Error = html.EscapeString(string(err.Error()));
+			state.Error = string(err.Error());
 		}
 
 		state.Building = false;
@@ -116,6 +124,7 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./websrc/")));
 	http.HandleFunc("/clean", cleanHandler);
 	http.HandleFunc("/build", buildHandler);
+	http.HandleFunc("/fail",  failHandler);
 	http.HandleFunc("/status", statusHandler);
 
 	if err := http.ListenAndServe(*addr, nil); err != nil {

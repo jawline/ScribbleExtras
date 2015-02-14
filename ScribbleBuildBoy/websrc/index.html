@@ -70,6 +70,27 @@
           });
         }
 
+        function updateBuildBanner(state) {
+          var bannerDiv = $('.successmessage');
+          if (state.Building || state.PreviousJobs == 0) {
+            bannerDiv.addClass('smallhidden');
+          } else {
+            var buildMessage = $('#build-end-message');
+            if (state.Error === "") {
+              buildMessage.html('Success');
+              bannerDiv.addClass('success');
+            } else {
+              buildMessage.html('Failure');
+              bannerDiv.removeClass('success');
+            }
+            bannerDiv.removeClass('smallhidden');
+          }
+        }
+
+        function hideBuildBanner() {
+          $('.successmessage').addClass('smallhidden');
+        }
+
         function setBuilding(isBuilding) {
           var statusHeader = $($.find('.status-header')[0]).html(isBuilding ? "Building" : "Idle");
           if (isBuilding) {
@@ -86,6 +107,7 @@
                 newLog = "";
 
             setBuilding(state.Building);
+            updateBuildBanner(state);
 
             newLog += "Log:" + state.Log;
             newLog += "Error:" + state.Error;
@@ -101,31 +123,16 @@
             $.get(STATUS_PATH, repeatStatus);
         }
 
-        function runClean() {
+        function runCommand(cmd) {
             clearOutput();
+            hideBuildBanner();
             setBuilding(true);
             appendOutput("Starting build command");
-            $.get(CLEAN_PATH, function(d) {
+            $.get(cmd, function(d) {
                 appendOutput("Started, server responded with " + d);
             }).fail(function(err) {
                 appendOutput("Server issues. Error:" + err.responseText);
             });
-        }
-
-        function runBuild() {
-            clearOutput();
-            setBuilding(true);
-            appendOutput("Starting build command");
-
-            $.get(BUILD_PATH, function(d) {
-                appendOutput("Started, server responded with " + d);
-            }).fail(function(err) {
-                appendOutput("Server issues. Error:" + err.responseText);
-            });
-        }
-
-        function checkStatus() {
-
         }
 
         $(function() {
@@ -157,10 +164,11 @@
     <br/>
     <br/>
     <div class="row featurette">
-        <div class="col-md-12">
+        <div class="col-xs-12">
             <div style="text-align: center;">
-                <a class="btn btn-lg btn-primary disabled col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runBuild(); return false;" role="button">Build</a>
-                <a class="btn btn-lg btn-primary disabled col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runClean(); return false;" role="button">Clean</a>
+                <a class="btn btn-lg btn-primary disabled col-xs-3" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(BUILD_PATH); return false;" role="button">Build</a>
+                <a class="btn btn-lg btn-primary disabled col-xs-3" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(CLEAN_PATH); return false;" role="button">Clean</a>
+                <a class="btn btn-lg btn-primary disabled col-xs-3" style="float: none; margin: 0px auto;" href="#" onclick="runCommand('/fail'); return false;" role="button">Fail</a>
             </div>
         </div>
     </div>
@@ -168,12 +176,15 @@
     <br/>
     <br/>
     <hr class="featurette-divider">
+    <div class="successmessage smallhidden col-xs-offset-5 col-xs-2">
+      <h1 id="build-end-message">Success!</h1>
+    </div>
 
     <br/>
     <br/>
 
     <div class="row featurette">
-        <div class="col-md-12">
+        <div class="col-xs-12">
             <div class="col-xs-9"><h1 class="featurette-heading">Build Status: </h1></div>
             <div class="col-xs-3"><h1 class="featurette-heading status-header"></h1></div>
             <br/>
