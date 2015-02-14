@@ -7,15 +7,20 @@ import (
 	"os/exec"
 	"fmt"
 	"os"
-	"strconv"
 	"path/filepath"
+	"html"
+	"encoding/json"
 )
+
+type Status struct {
+	Building bool
+	Log string
+	Error string
+}
 
 var addr = flag.String("addr", ":80", "WebServer Service");
 var path = "";
-var job = false;
-var output = "";
-var error = "";
+var state = Status{false, "", ""};
 
 func writeSource(source string) string {
 
@@ -41,14 +46,14 @@ func cleanHandler(c http.ResponseWriter, req *http.Request) {
 
 func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 
-	if job {
+	if state.Building {
 		c.WriteHeader(400);
 		c.Write([]byte("{reason:\"job already running\"}"));
 		return;
 	}
 
-	output = "";
-	error = "";
+	state.Log = "";
+	state.Error = "";
 
 	fmt.Printf("Handle %s\n", req.FormValue("source"));
 	c.Header().Set("Access-Control-Allow-Origin", "*");
@@ -61,7 +66,7 @@ func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 		return;
 	}
 
-	job = true;
+	state.Building = true;
 	
 	go func() {
 		
@@ -73,18 +78,17 @@ func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 		
 		cmd.Dir = path;
 
-		fmt.Printf("Done setting up\n", output, error);
+		fmt.Printf("Done setting up\n");
 
 		out, err := cmd.CombinedOutput();
 
-		output = string(out);
+		state.Log = html.EscapeString(string(out));
 
 		if err != nil {
-			error = string(err.Error());
+			state.Error = html.EscapeString(string(err.Error()));
 		}
 
-		job = false;
-
+		state.Building = false;
 		fmt.Printf("%s %s\n", out, err);
 	}();
 
@@ -92,7 +96,15 @@ func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 }
 
 func statusHandler(c http.ResponseWriter, req *http.Request) {
-	c.Write([]byte("{\n\"status\": " + strconv.FormatBool(job) + ",\n\"log\": \"" + output + "\",\n\"error\": \"" + error + "\"\n}"));
+	data, err := json.Marshal(state);
+
+	if err != nil {
+		c.WriteHeader(400);
+		c.Write([]byte("{reason:\"" + err.Error() + "\"}"));
+		return;
+	}
+
+	c.Write(data);
 }
 
 func main() {

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -45,29 +46,67 @@
             $("#result-area").val($("#result-area").val() + data + "\n")
         }
 
-        function waitUntilDone(doneHandler) {
-            var intervalId = setInterval(function() {
-                $.get(STATUS_PATH, function(data) {
-                    var state = JSON.parse(data);
-                    appendOutput("Build still executing...");
-                    debugger;
-                    if (!state.status) {
-                        clearInterval(intervalId);
-                        appendOutput("Build finished");
-                        appendOutput(state.log);
-                        appendOutput(state.error);
-                    }
-                });
-            }, 1500);
+        function setOutput(data) {
+          var current = $("#result-area").val();
+          if (current !== data) {
+            clearOutput();
+            appendOutput(data);
+          }
+        }
+
+        function Defer(fn, time) {
+            setTimeout(fn, time);
+        }
+
+        function disableButtons() {
+          $.find('.btn').forEach(function(btn) {
+            $(btn).addClass('disabled');
+          });
+        }
+
+        function enableButtons() {
+          $.find('.btn').forEach(function(btn) {
+            $(btn).removeClass('disabled');
+          });
+        }
+
+        function setBuilding(isBuilding) {
+          var statusHeader = $($.find('.status-header')[0]).html(isBuilding ? "Building" : "Idle");
+          if (isBuilding) {
+            statusHeader.addClass('building');
+            disableButtons();
+          } else {
+            statusHeader.removeClass('building');
+            enableButtons();
+          }
+        }
+
+        function repeatStatus(data) {
+            var state  = JSON.parse(data),
+                newLog = "";
+
+            setBuilding(state.Building);
+
+            newLog += "Log:" + state.Log;
+            newLog += "Error:" + state.Error;
+
+            setOutput(newLog);
+
+            Defer(function() {
+                $.get(STATUS_PATH, repeatStatus);
+            }, 2000);
+        }
+
+        function startRepeating() {
+            $.get(STATUS_PATH, repeatStatus);
         }
 
         function runClean() {
             clearOutput();
+            setBuilding(true);
             appendOutput("Starting build command");
-
             $.get(CLEAN_PATH, function(d) {
                 appendOutput("Started, server responded with " + d);
-                waitUntilDone(function() {});
             }).fail(function(err) {
                 appendOutput("Server issues. Error:" + err.responseText);
             });
@@ -75,11 +114,11 @@
 
         function runBuild() {
             clearOutput();
+            setBuilding(true);
             appendOutput("Starting build command");
 
             $.get(BUILD_PATH, function(d) {
                 appendOutput("Started, server responded with " + d);
-                waitUntilDone(function() {});
             }).fail(function(err) {
                 appendOutput("Server issues. Error:" + err.responseText);
             });
@@ -88,6 +127,10 @@
         function checkStatus() {
 
         }
+
+        $(function() {
+            startRepeating();
+        });
     </script>
 
 </head>
@@ -116,8 +159,8 @@
     <div class="row featurette">
         <div class="col-md-12">
             <div style="text-align: center;">
-                <a class="btn btn-lg btn-primary col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runBuild(); return false;" role="button">Build</a>
-                <a class="btn btn-lg btn-primary col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runClean(); return false;" role="button">Clean</a>
+                <a class="btn btn-lg btn-primary disabled col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runBuild(); return false;" role="button">Build</a>
+                <a class="btn btn-lg btn-primary disabled col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runClean(); return false;" role="button">Clean</a>
             </div>
         </div>
     </div>
@@ -131,7 +174,8 @@
 
     <div class="row featurette">
         <div class="col-md-12">
-            <h2 class="featurette-heading">Output</h2>
+            <div class="col-xs-9"><h1 class="featurette-heading">Build Status: </h1></div>
+            <div class="col-xs-3"><h1 class="featurette-heading status-header"></h1></div>
             <br/>
             <textarea class="code-area" id="result-area" style="width: 100%; height: 200px; resize: none;" rows="20"></textarea>
 
