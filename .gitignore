@@ -19,7 +19,6 @@ gen/*
 bin/*
 obj/*
 
-VMLogFile
-*/VMLogFile
+*VMLogFile
 a.out
 libscribble.so

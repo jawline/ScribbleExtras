@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Scribble Build Bot</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/local.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+    <link href="scribble.css" rel="stylesheet">
+
+    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/utils.js"></script>
+
+    <!-- sliderman.js -->
+    <script type="text/javascript" src="js/sliderman.1.3.7.js"></script>
+
+    <script type="text/javascript" src="js/menu.js"></script>
+
+
+    <script>
+        var BUILD_PATH = "/build",
+            CLEAN_PATH = "/clean",
+            STATUS_PATH = "/status",
+            loading = false;
+
+        function clearOutput() {
+            $("#result-area").val('');
+        }
+
+        function appendOutput(data) {
+            $("#result-area").val($("#result-area").val() + data + "\n")
+        }
+
+        function waitUntilDone(doneHandler) {
+            var intervalId = setInterval(function() {
+                $.get(STATUS_PATH, function(data) {
+                    var state = JSON.parse(data);
+                    appendOutput("Build still executing...");
+                    debugger;
+                    if (!state.status) {
+                        clearInterval(intervalId);
+                        appendOutput("Build finished");
+                        appendOutput(state.log);
+                        appendOutput(state.error);
+                    }
+                });
+            }, 1500);
+        }
+
+        function runClean() {
+            clearOutput();
+            appendOutput("Starting build command");
+
+            $.get(CLEAN_PATH, function(d) {
+                appendOutput("Started, server responded with " + d);
+                waitUntilDone(function() {});
+            }).fail(function(err) {
+                appendOutput("Server issues. Error:" + err.responseText);
+            });
+        }
+
+        function runBuild() {
+            clearOutput();
+            appendOutput("Starting build command");
+
+            $.get(BUILD_PATH, function(d) {
+                appendOutput("Started, server responded with " + d);
+                waitUntilDone(function() {});
+            }).fail(function(err) {
+                appendOutput("Server issues. Error:" + err.responseText);
+            });
+        }
+
+        function checkStatus() {
+
+        }
+    </script>
+
+</head>
+<!-- NAVBAR
+================================================== -->
+
+<body>
+
+    <div class="container marketing">
+
+
+        <a name="content-start"></a>
+    </div>
+
+    </br>
+
+    <hr class="featurette-divider">
+
+    <div class="row featurette" style="text-align: center;font-size: 20px;padding: 10px;">
+        This tool will fetch and build the latest version of Scribble. Beware! it is very slow.
+    </div>
+
+    <hr class="featurette-divider">
+    <br/>
+    <br/>
+    <div class="row featurette">
+        <div class="col-md-12">
+            <div style="text-align: center;">
+                <a class="btn btn-lg btn-primary col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runBuild(); return false;" role="button">Build</a>
+                <a class="btn btn-lg btn-primary col-md-3" style="float: none; margin: 0px auto;" href="#" onclick="runClean(); return false;" role="button">Clean</a>
+            </div>
+        </div>
+    </div>
+
+    <br/>
+    <br/>
+    <hr class="featurette-divider">
+
+    <br/>
+    <br/>
+
+    <div class="row featurette">
+        <div class="col-md-12">
+            <h2 class="featurette-heading">Output</h2>
+            <br/>
+            <textarea class="code-area" id="result-area" style="width: 100%; height: 200px; resize: none;" rows="20"></textarea>
+
+        </div>
+    </div>
+
+
+    <hr class="featurette-divider">
+
+
+    <!-- FOOTER -->
+    <footer>
+        <p class="pull-right"><a href="#">Back to top</a>
+        </p>
+        <p>&copy; 2013 Blake Loring, Imclueless Software.</p>
+    </footer>
+
+    </div>
+    <!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</body>
+
+</html>
