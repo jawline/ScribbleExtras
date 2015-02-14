@@ -109,8 +109,11 @@
             setBuilding(state.Building);
             updateBuildBanner(state);
 
-            newLog += "Log:" + state.Log;
-            newLog += "Error:" + state.Error;
+            newLog += state.Log;
+
+            if (state.Error != "") {
+              newLog += "Error:" + state.Error;
+            }
 
             setOutput(newLog);
 
@@ -199,9 +202,7 @@
 
     <!-- FOOTER -->
     <footer>
-        <p class="pull-right"><a href="#">Back to top</a>
-        </p>
-        <p>&copy; 2013 Blake Loring, Imclueless Software.</p>
+        <p>&copy; 2013-2015 Blake Loring, <a href="http://parsed.uk">www.parsed.uk</a></p>
     </footer>
 
     </div>

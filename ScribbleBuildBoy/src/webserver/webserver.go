@@ -117,7 +117,7 @@ func statusHandler(c http.ResponseWriter, req *http.Request) {
 
 func main() {
 
-	directoryFlag := flag.String("path", "~/Scribble/", "The path to the scribble interpretor")
+	directoryFlag := flag.String("path", "./Scribble/", "The path to the scribble interpretor")
 	flag.Parse()
 	path = *directoryFlag
 
