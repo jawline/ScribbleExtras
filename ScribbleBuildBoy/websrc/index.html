@@ -79,7 +79,7 @@
           } else {
             var buildMessage = $('#build-end-message');
             if (state.Error === "") {
-              buildMessage.html('Build #' + state.PreviousJobs +' Success');
+              buildMessage.html('Job #' + state.PreviousJobs +' Success');
               bannerDiv.addClass('success');
             } else {
               buildMessage.html('Failure');
@@ -183,7 +183,7 @@
     <br/>
     <hr class="featurette-divider">
     <div class="successmessage smallhidden col-xs-offset-5 col-xs-2">
-      <h1 id="build-end-message">Success!</h1>
+      <h1 id="build-end-message">Job #0 Success!</h1>
     </div>
 
     <br/>
