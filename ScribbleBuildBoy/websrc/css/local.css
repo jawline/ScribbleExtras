@@ -24,6 +24,11 @@
   visibility: hidden;
  }
 
+ .centered-btn {
+  float: none;
+  margin: 5px auto;
+ }
+
  .log {
   border: #a0a0a0 solid 1px;
   background: #f5f5f5;
