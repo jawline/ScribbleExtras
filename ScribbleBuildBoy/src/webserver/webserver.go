@@ -9,19 +9,28 @@ import (
 	"os"
 	"path/filepath"
 	"encoding/json"
+	"bytes"
 )
+
+type State struct {
+	Building bool
+	PreviousJobs int
+	LastStep string
+	Log *bytes.Buffer
+	Error string
+}
 
 type Status struct {
 	Building bool
 	PreviousJobs int
 	LastStep string
 	Log string
-	Error string
+	Error string	
 }
 
 var addr = flag.String("addr", ":80", "WebServer Service");
 var path = "";
-var state = Status{false, 0, "", "", ""};
+var state = State{false, 0, "", bytes.NewBufferString(""), ""};
 
 func writeSource(source string) string {
 
@@ -53,6 +62,30 @@ func pullHandler(c http.ResponseWriter, req *http.Request) {
 	beginProcess("resetgitandpull", c, req);
 }
 
+
+func processThread(rule string, path string) {
+
+	cmd := exec.Command("make");	
+	if (rule != "") {
+		cmd = exec.Command("make", rule);
+	}
+		
+	cmd.Dir = path;
+	cmd.Stdout = state.Log;
+	cmd.Stderr = state.Log;
+
+	fmt.Printf("Done setting up\n");
+	
+	err := cmd.Run();
+
+	if err != nil {
+		state.Error = string(err.Error());
+	}
+
+	state.Building = false;
+	fmt.Printf("%s %s\n", state.Log, state.Error);
+}
+
 func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 
 	if state.Building {
@@ -64,7 +97,7 @@ func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 	state.PreviousJobs++;
 	state.LastStep = rule;
 
-	state.Log = "";
+	state.Log.Reset();
 	state.Error = "";
 
 	fmt.Printf("Handle %s\n", req.FormValue("source"));
@@ -80,35 +113,18 @@ func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
 
 	state.Building = true;
 	
-	go func() {
-		
-		cmd := exec.Command("make");
-		
-		if (rule != "") {
-			cmd = exec.Command("make", rule);
-		}
-		
-		cmd.Dir = path;
-
-		fmt.Printf("Done setting up\n");
-
-		out, err := cmd.CombinedOutput();
-
-		state.Log = string(out);
-
-		if err != nil {
-			state.Error = string(err.Error());
-		}
-
-		state.Building = false;
-		fmt.Printf("%s %s\n", out, err);
-	}();
+	go processThread(rule, path);
 
 	c.Write([]byte(string("started")));	
 }
 
 func statusHandler(c http.ResponseWriter, req *http.Request) {
-	data, err := json.Marshal(state);
+
+	data, err := json.Marshal(Status{ state.Building,
+		state.PreviousJobs,
+		state.LastStep,
+		state.Log.String(),
+		state.Error });
 
 	if err != nil {
 		c.WriteHeader(400);

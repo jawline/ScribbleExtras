@@ -122,7 +122,7 @@
 
             Defer(function() {
                 $.get(STATUS_PATH, repeatStatus);
-            }, 2000);
+            }, 500);
         }
 
         function startRepeating() {
@@ -157,7 +157,7 @@
     </br>
 
     <div class="row featurette" style="text-align: center;font-size: 20px;padding: 10px;">
-        This tool will fetch and build the latest version of Scribble. Beware! it is very slow.
+        This tool can fetch and build the latest version of Scribble to check the state of master. Builds can take a while.
     </div>
 
     <hr class="featurette-divider">
