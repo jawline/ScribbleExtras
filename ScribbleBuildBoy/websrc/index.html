@@ -82,7 +82,7 @@
               buildMessage.html('Job #' + state.PreviousJobs +' Success');
               bannerDiv.addClass('success');
             } else {
-              buildMessage.html('Failure');
+              buildMessage.html('Job #' + state.PreviousJobs +' Failure');
               bannerDiv.removeClass('success');
             }
             bannerDiv.removeClass('smallhidden');
