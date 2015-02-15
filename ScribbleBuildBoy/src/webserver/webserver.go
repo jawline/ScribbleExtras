@@ -45,8 +45,12 @@ func cleanHandler(c http.ResponseWriter, req *http.Request) {
 	beginProcess("clean", c, req);
 }
 
-func failHandler(c http.ResponseWriter, req *http.Request) {
-	beginProcess("stupidcommand", c, req);
+func testHandler(c http.ResponseWriter, req *http.Request) {
+	beginProcess("test", c, req);
+}
+
+func pullHandler(c http.ResponseWriter, req *http.Request) {
+	beginProcess("pull", c, req);
 }
 
 func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
@@ -124,7 +128,8 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./websrc/")));
 	http.HandleFunc("/clean", cleanHandler);
 	http.HandleFunc("/build", buildHandler);
-	http.HandleFunc("/fail",  failHandler);
+	http.HandleFunc("/test",  testHandler);
+	http.HandleFunc("/pull",  pullHandler);
 	http.HandleFunc("/status", statusHandler);
 
 	if err := http.ListenAndServe(*addr, nil); err != nil {

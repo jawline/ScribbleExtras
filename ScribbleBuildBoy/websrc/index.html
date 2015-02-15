@@ -36,6 +36,8 @@
         var BUILD_PATH = "/build",
             CLEAN_PATH = "/clean",
             STATUS_PATH = "/status",
+            TEST_PATH = "/test",
+            PULL_PATH = "/pull",
             loading = false;
 
         function clearOutput() {
@@ -169,9 +171,10 @@
     <div class="row featurette">
         <div class="col-xs-12">
             <div style="text-align: center;">
-                <a class="btn btn-lg btn-primary disabled col-xs-3" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(BUILD_PATH); return false;" role="button">Build</a>
-                <a class="btn btn-lg btn-primary disabled col-xs-3" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(CLEAN_PATH); return false;" role="button">Clean</a>
-                <a class="btn btn-lg btn-primary disabled col-xs-3" style="float: none; margin: 0px auto;" href="#" onclick="runCommand('/fail'); return false;" role="button">Fail</a>
+                <a class="btn btn-lg btn-primary disabled col-xs-2" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(PULL_PATH); return false;" role="button">Pull</a>            
+                <a class="btn btn-lg btn-primary disabled col-xs-2" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(CLEAN_PATH); return false;" role="button">Clean</a>
+                <a class="btn btn-lg btn-primary disabled col-xs-2" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(BUILD_PATH); return false;" role="button">Build</a>
+                <a class="btn btn-lg btn-primary disabled col-xs-2" style="float: none; margin: 0px auto;" href="#" onclick="runCommand(TEST_PATH); return false;" role="button">Tests</a>
             </div>
         </div>
     </div>
