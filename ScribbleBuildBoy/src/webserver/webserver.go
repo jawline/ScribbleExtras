@@ -50,7 +50,7 @@ func testHandler(c http.ResponseWriter, req *http.Request) {
 }
 
 func pullHandler(c http.ResponseWriter, req *http.Request) {
-	beginProcess("pull", c, req);
+	beginProcess("stashpull", c, req);
 }
 
 func beginProcess(rule string, c http.ResponseWriter, req *http.Request) {
