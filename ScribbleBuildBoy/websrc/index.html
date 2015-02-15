@@ -79,7 +79,7 @@
           } else {
             var buildMessage = $('#build-end-message');
             if (state.Error === "") {
-              buildMessage.html('Success');
+              buildMessage.html('Build #' + state.PreviousJobs +' Success');
               bannerDiv.addClass('success');
             } else {
               buildMessage.html('Failure');
