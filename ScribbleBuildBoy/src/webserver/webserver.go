@@ -65,8 +65,9 @@ func pullHandler(c http.ResponseWriter, req *http.Request) {
 
 func processThread(rule string, path string) {
 
-	cmd := exec.Command("make");	
-	if (rule != "") {
+	cmd := exec.Command("make");
+
+	if rule != "" {
 		cmd = exec.Command("make", rule);
 	}
 		
